@@ -1,0 +1,19 @@
+---
+
+  applications:
+
+    example-app:
+      repo: example-app-url.git
+      branch: master
+      port: 5000
+      runcommand: /vagrant/app/example-app/run.sh
+      vars:
+        anexampleconfigvar: avalue
+
+    example-app-2:
+      repo: example-app-2-url.git
+      branch: master
+      port: 5001
+      runcommand: /vagrant/app/example-app-2/run.sh
+      vars:
+        anotherconfigvar: anothervalue
