@@ -7,42 +7,36 @@ if [[ ! $(id vagrant) ]]; then
   exit 1
 fi
 
-# Just for ease of use, let's autoswap to the workspace folder
-echo 'cd /vagrant; # switch to workspace' >> ${HOME}/.bash_profile
+echo 'cd /vagrant' >> ${HOME}/.bash_profile
 
 # Change prompt name to {{ cookiecutter.devenv_name }}
 echo 'export PS1=" \033[1;34m{{ cookiecutter.devenv_name }}\033[0m \033[1;31m$ \033[0m"' >> ${HOME}/.bash_profile
 
 # Add local to PATH
-echo 'export PATH=$PATH:/vagrant/local; # add local dir to path' >> ${HOME}/.bash_profile
+echo 'export PATH=$PATH:/vagrant/local' >> ${HOME}/.bash_profile
 
 [ ! -d /vagrant/logs ] && mkdir -p /vagrant/logs
 
-# Initially we need to install a load of junk thats not provided by landregistry/centos
 echo "- - - Installing system dependencies - - -"
 sudo yum install -q -y git GitPython PyYAML python-devel python-pip python-jinja2 supervisor
 
 yum install -y git
 
-#Install provisions for all applications we've got
-provision_scripts=`find /vagrant/apps -regex "/vagrant/apps/.*/provision.sh"`
-for script in $provision_scripts
-do
-	bash $script
-done
-
 #add helpful aliases
 echo "source /vagrant/local/add-aliases.sh" >> ${HOME}/.bash_profile
 
 # Put together a supervisor config
+echo "- - - Starting Supervisord - - -"
 sudo systemctl start supervisord >/dev/null 2>&1
 sudo systemctl enable supervisord >/dev/null 2>&1
 sudo chown -R vagrant:vagrant /etc/supervisord.d/
 
 # Set up applications
-echo "- - - Configuring applications - - -"
-sudo -i -u vagrant python /vagrant/local/setup-apps
+#echo "- - - Configuring applications - - -"
+#sudo -i -u vagrant python /vagrant/local/setup-apps
 
 # Load supervisor config and start applications
 echo "- - - Starting services - - -"
 sudo supervisorctl reload >/dev/null
+
+echo -e 'Host github.com\n\tStrictHostKeyChecking no\n' >> /home/vagrant/.ssh/config

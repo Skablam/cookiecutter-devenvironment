@@ -25,9 +25,11 @@ Vagrant.configure(2) do |node|
 
   # Run script to configure environment
   node.vm.provision :shell, :inline => "source /vagrant/local/setup-environment"
+  # Now setups the applications, run as vagrant user
+  node.vm.provision :shell, :inline => "python /vagrant/local/setup-apps", privileged: false
 
   node.vm.provider :virtualbox do |vb|
-    vb.name = "{{ devenv_name }}"
+    vb.name = "{{ cookiecutter.devenv_name }}"
     vb.customize ['modifyvm', :id, '--memory', ENV['VM_MEMORY'] || 4096]
     vb.customize ['modifyvm', :id, '--natdnshostresolver1', 'on']
     vb.customize ['modifyvm', :id, '--natdnsproxy1', 'on']
